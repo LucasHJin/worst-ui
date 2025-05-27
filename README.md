@@ -1,3 +1,1 @@
-Tech Stack:
-- MediaPipe Hands
-- TensorFlow.js
+https://huggingface.co/lizardwine/DigitClassifier
