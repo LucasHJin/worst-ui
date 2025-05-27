@@ -29,6 +29,23 @@ export const Board = () => {
     };
   }, []);
 
+  // Changes random tiles colors
+  useEffect(() => {
+    const interval = setInterval(() => {
+      for (let i = 0; i < 20; i++) {
+        const randomIndex = Math.floor(Math.random() * tilesCount);
+        const randomOpacity = (Math.random() * 0.6).toFixed(2);
+
+        const tile = containerRef.current?.children[randomIndex];
+        if (tile) {
+          opacityRef.current[randomIndex] = parseFloat(randomOpacity);
+          tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
+        }
+      }
+    }, 750);
+    return () => clearInterval(interval);
+  }, [tilesCount]);
+
   // Handling opacity (coloring)
   const handleMouseOut = (index, e) => {
     if (mouseDown) {
