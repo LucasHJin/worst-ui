@@ -1,19 +1,21 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 
 export const Board = () => {
-  const [blocks, setBlocks] = useState(28);
+  const [tiles, setTiles] = useState(28);
   const [mouseDown, setMouseDown] = useState(false);
   const containerRef = useRef(null);
 
-  const tilesCount = blocks * blocks;
+  // Sizing of tile
+  const tilesCount = tiles * tiles;
+  const sizeSpace = tiles * 0.01 * 2;
+  const remaining = 65 - sizeSpace;
+  const tileSize = remaining / tiles;
 
-  const sizeSpace = blocks * 0.05 * 2;
-  const remaining = 75 - sizeSpace;
-  const tileSize = remaining / blocks;
-
+  // Keeps track of opacity for each tile
   const opacityRef = useRef(Array(tilesCount).fill(0));
 
+  // Global listeners for mouse being clicked/not
   useEffect(() => {
     const onMouseDown = () => setMouseDown(true);
     const onMouseUp = () => setMouseDown(false);
@@ -27,6 +29,7 @@ export const Board = () => {
     };
   }, []);
 
+  // Handling opacity (coloring)
   const handleMouseOut = (index, e) => {
     if (mouseDown) {
       let opacity = opacityRef.current[index] || 0;
@@ -38,6 +41,7 @@ export const Board = () => {
     }
   };
 
+  // Handling erasing
   const handleMouseOver = (e) => {
     e.target.style.backgroundColor = "#fdc3c3";
   };
@@ -48,10 +52,10 @@ export const Board = () => {
         ref={containerRef}
         className="container"
         style={{
-          width: "75vh",
+          width: "65vh",
           display: "grid",
-          gridTemplateColumns: `repeat(${blocks}, ${tileSize}vh)`,
-          gridTemplateRows: `repeat(${blocks}, ${tileSize}vh)`,
+          gridTemplateColumns: `repeat(${tiles}, ${tileSize}vh)`,
+          gridTemplateRows: `repeat(${tiles}, ${tileSize}vh)`,
           gap: "0.1vh",
         }}
       >
