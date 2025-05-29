@@ -5,6 +5,7 @@ export const Board = () => {
   const [tiles, setTiles] = useState(28);
   const [mouseDown, setMouseDown] = useState(false);
   const containerRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // Sizing of tile
   const tilesCount = tiles * tiles;
@@ -14,15 +15,6 @@ export const Board = () => {
 
   // Keeps track of opacity for each tile
   const opacityRef = useRef(Array(tilesCount).fill(0));
-
-  const getGridData = () => {
-    // Get all data from the divs
-    const numberData = opacityRef.current.map((opacity) =>
-      Math.min(Math.max(opacity, 0), 1)
-    );
-
-    return numberData;
-  };
 
   // Global listeners for mouse being clicked/not
   useEffect(() => {
@@ -51,7 +43,7 @@ export const Board = () => {
           tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
         }
       }
-    }, 750);
+    }, 2000); // Make longer so it progressively gets more difficult over time
     return () => clearInterval(interval);
   }, [tilesCount]);
 
@@ -70,6 +62,48 @@ export const Board = () => {
   // Handling erasing
   const handleMouseOver = (e) => {
     e.target.style.backgroundColor = "#fdc3c3";
+  };
+
+  // Get image to put into model (https://www.w3schools.com/graphics/canvas_drawing.asp)
+  const getBase64Image = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d"); // Allows drawing on the canvas -> https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+
+    // Set canvas to be 28x28 px (required dimensions)
+    canvas.width = tiles;
+    canvas.height = tiles;
+
+    // Clear the drawing reference in case there is leftover color
+    ctx.clearRect(0, 0, size, size);
+    // Creates the image to draw on -> https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createImageData
+    const imageData = ctx.createImageData(size, size);
+
+    // Set each pixel's value to the grid tiles
+    for (let pixel= 0; pixel < tilesCount; pixel++) {
+      const opacity = Math.min(Math.max(opacityRef.current[pixel], 0), 1); // Needs to be 0 or 1 (round)
+      const colorVal = Math.round(255 * (1 - opacity)); 
+
+      // Each pixel value needs to be made up of 4 values (RGBA -> opacity is full)
+      const pixelIndex = pixel * 4;
+      imageData.data[pixelIndex] = colorVal;
+      imageData.data[pixelIndex + 1] = colorVal;
+      imageData.data[pixelIndex + 2] = colorVal;
+      imageData.data[pixelIndex + 3] = 255;
+    }
+
+    // Populates the canvas with the image
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL("image/png"); // Return as base 64
+  };
+
+  // Get data from grids (maybe not necesary)
+  const getGridData = () => {
+    // Get all data from the divs
+    const numberData = opacityRef.current.map((opacity) =>
+      Math.min(Math.max(opacity, 0), 1)
+    );
+
+    return numberData;
   };
 
   return (
@@ -103,13 +137,18 @@ export const Board = () => {
       </div>
       <button
         onClick={async () => {
-          const flatInput = getGridData();
-
-          console.log("Prediction:", result);
+          console.log(getGridData());
+          console.log(getBase64Image());
         }}
       >
         Predict
       </button>
+      <canvas
+        ref={canvasRef}
+        width={tiles}
+        height={tiles}
+        style={{ display: "none" }}
+      />
     </>
   );
 };
