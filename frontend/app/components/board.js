@@ -15,6 +15,15 @@ export const Board = () => {
   // Keeps track of opacity for each tile
   const opacityRef = useRef(Array(tilesCount).fill(0));
 
+  const getGridData = () => {
+    // Get all data from the divs
+    const numberData = opacityRef.current.map((opacity) =>
+      Math.min(Math.max(opacity, 0), 1)
+    );
+
+    return numberData;
+  };
+
   // Global listeners for mouse being clicked/not
   useEffect(() => {
     const onMouseDown = () => setMouseDown(true);
@@ -32,13 +41,13 @@ export const Board = () => {
   // Changes random tiles colors
   useEffect(() => {
     const interval = setInterval(() => {
-      for (let i = 0; i < 20; i++) {
-        const randomIndex = Math.floor(Math.random() * tilesCount);
-        const randomOpacity = (Math.random() * 0.6).toFixed(2);
+      for (let _ = 0; _ < 20; _++) {
+        const randomCell = Math.floor(Math.random() * tilesCount);
+        const randomOpacity = (Math.random()).toFixed(2);
 
-        const tile = containerRef.current?.children[randomIndex];
+        const tile = containerRef.current?.children[randomCell];
         if (tile) {
-          opacityRef.current[randomIndex] = parseFloat(randomOpacity);
+          opacityRef.current[randomCell] = parseFloat(randomOpacity);
           tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
         }
       }
@@ -92,6 +101,15 @@ export const Board = () => {
           />
         ))}
       </div>
+      <button
+        onClick={async () => {
+          const flatInput = getGridData();
+
+          console.log("Prediction:", result);
+        }}
+      >
+        Predict
+      </button>
     </>
   );
 };
