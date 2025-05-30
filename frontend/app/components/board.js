@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 export const Board = () => {
   const [tiles, setTiles] = useState(28);
   const [mouseDown, setMouseDown] = useState(false);
+  const [numberArr, setNumberArr] = useState(new Array(10).fill(null));
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -152,10 +153,18 @@ export const Board = () => {
       </div>
       <button
         onClick={async () => {
-          console.log(getBase64Image());
           const base64Img = getBase64Image();
           const prediction = await predictDigit(base64Img);
-          console.log("Predicted digit:", prediction);
+          //console.log("Predicted digit:", prediction);
+          const nextNumberIndex = numberArr.findIndex(item => item === null);
+          if (nextNumberIndex !== -1) {
+            // Set the predicted number
+            setNumberArr(prevArr => {
+              const newArr = [...prevArr];
+              newArr[nextNumberIndex] = prediction;
+              return newArr;
+            });
+          }
         }}
       >
         Predict
@@ -166,6 +175,15 @@ export const Board = () => {
         height={tiles}
         style={{ display: "none" }}
       />
+      <div>
+        {
+          numberArr.map((num, index) => (
+            <div key={index}>
+              {num === null ? "X" : num}
+            </div>
+          ))
+        }
+      </div>
     </>
   );
 };
