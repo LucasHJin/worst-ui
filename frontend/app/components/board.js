@@ -10,8 +10,8 @@ export const Board = () => {
 
   // Sizing of tile
   const tilesCount = tiles * tiles;
-  const sizeSpace = tiles * 0.01 * 2;
-  const remaining = 65 - sizeSpace;
+  //const sizeSpace = tiles * 0.01 * 2;
+  const remaining = 65;
   const tileSize = remaining / tiles;
 
   // Keeps track of opacity for each tile
@@ -36,7 +36,7 @@ export const Board = () => {
     const interval = setInterval(() => {
       for (let _ = 0; _ < 8; _++) {
         const randomCell = Math.floor(Math.random() * tilesCount);
-        const randomOpacity = (Math.random()).toFixed(2);
+        const randomOpacity = Math.random().toFixed(2);
 
         const tile = containerRef.current?.children[randomCell];
         if (tile) {
@@ -44,7 +44,7 @@ export const Board = () => {
           tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
         }
       }
-    }, 3000); // Make longer so it progressively gets more difficult over time
+    }, 3000); // Make longer so it progressively gets more difficult over time (CHANGE TO RAMPING UP OVER TIME!!!)
     return () => clearInterval(interval);
   }, [tilesCount]);
 
@@ -56,13 +56,13 @@ export const Board = () => {
       opacityRef.current[index] = opacity;
       e.target.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
     } else {
-      e.target.style.backgroundColor = "#eee";
+      e.target.style.backgroundColor = "white";
     }
   };
 
   // Handling erasing
   const handleMouseOver = (e) => {
-    e.target.style.backgroundColor = "#fdc3c3";
+    e.target.style.backgroundColor = "#D7FDFF";
   };
 
   // Get image to put into model (https://www.w3schools.com/graphics/canvas_drawing.asp)
@@ -80,9 +80,9 @@ export const Board = () => {
     const imageData = ctx.createImageData(tiles, tiles);
 
     // Set each pixel's value to the grid tiles
-    for (let pixel= 0; pixel < tilesCount; pixel++) {
+    for (let pixel = 0; pixel < tilesCount; pixel++) {
       const opacity = Math.min(Math.max(opacityRef.current[pixel], 0), 1); // Needs to be 0 or 1 (round)
-      const colorVal = Math.round(255 * (1 - opacity)); 
+      const colorVal = Math.round(255 * (1 - opacity));
 
       // Each pixel value needs to be made up of 4 values (RGBA -> opacity is full)
       const pixelIndex = pixel * 4;
@@ -123,12 +123,10 @@ export const Board = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center gap-2">
       <div
         ref={containerRef}
-        className="container"
         style={{
-          width: "65vh",
           display: "grid",
           gridTemplateColumns: `repeat(${tiles}, ${tileSize}vh)`,
           gridTemplateRows: `repeat(${tiles}, ${tileSize}vh)`,
@@ -142,7 +140,7 @@ export const Board = () => {
             style={{
               height: `${tileSize}vh`,
               width: `${tileSize}vh`,
-              backgroundColor: "#eee",
+              backgroundColor: "white",
               border: "1px solid black",
               userSelect: "none",
             }}
@@ -151,39 +149,50 @@ export const Board = () => {
           />
         ))}
       </div>
-      <button
-        onClick={async () => {
-          const base64Img = getBase64Image();
-          const prediction = await predictDigit(base64Img);
-          //console.log("Predicted digit:", prediction);
-          const nextNumberIndex = numberArr.findIndex(item => item === null);
-          if (nextNumberIndex !== -1) {
-            // Set the predicted number
-            setNumberArr(prevArr => {
-              const newArr = [...prevArr];
-              newArr[nextNumberIndex] = prediction;
-              return newArr;
-            });
-          }
-        }}
-      >
-        Predict
-      </button>
+      <div className="flex flex-row gap-2">
+        <button
+          onClick={async () => {
+            const base64Img = getBase64Image();
+            const prediction = await predictDigit(base64Img);
+            //console.log("Predicted digit:", prediction);
+            const nextNumberIndex = numberArr.findIndex(
+              (item) => item === null
+            );
+            if (nextNumberIndex !== -1) {
+              // Set the predicted number
+              setNumberArr((prevArr) => {
+                const newArr = [...prevArr];
+                newArr[nextNumberIndex] = prediction;
+                return newArr;
+              });
+            }
+          }}
+          className="border rounded px-26 py-1 bg-green-300"
+        >
+          Predict
+        </button>
+        <button
+          onClick={() => {
+            setNumberArr(new Array(10).fill(null));
+          }}
+          className="border rounded px-26 py-1 bg-red-300"
+        >
+          Restart
+        </button>
+      </div>
       <canvas
         ref={canvasRef}
         width={tiles}
         height={tiles}
         style={{ display: "none" }}
       />
-      <div>
-        {
-          numberArr.map((num, index) => (
-            <div key={index}>
-              {num === null ? "X" : num}
-            </div>
-          ))
-        }
+      <div className="flex flex-nowrap flex-row gap-2">
+        {numberArr.map((num, index) => (
+          <div key={index} className="bg-blue-300 h-12 w-12 text-center text-xl font-bold flex flex-col justify-center rounded border">
+            {num === null ? "" : num}
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
