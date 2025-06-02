@@ -52,6 +52,28 @@ export const Board = () => {
     return () => clearInterval(interval);
   }, [tilesCount, numberArr]);
 
+  // For submitting the phone number
+  useEffect(() => {
+    const isFull = numberArr.every((item) => item !== null);
+    if (isFull) {
+      // Change to modal?
+      const submit = window.confirm(
+        `Is this your phone number?\n${numberArr}`
+      );
+      if (submit) {
+        alert("Thank you for submitting your phone number!");
+      } else {
+        setNumberArr(new Array(10).fill(null));
+        if (containerRef.current) {
+          Array.from(containerRef.current.children).forEach((tile) => {
+            tile.style.backgroundColor = "white";
+          });
+        }
+        alert("Please try again.");
+      }
+    }
+  }, [numberArr]);
+
   // Handling opacity (coloring)
   const handleMouseOut = (index, e) => {
     if (mouseDown) {
@@ -178,6 +200,12 @@ export const Board = () => {
         <button
           onClick={() => {
             setNumberArr(new Array(10).fill(null));
+            if (containerRef.current) {
+              // Creates array of all the tiles to set to white
+              Array.from(containerRef.current.children).forEach((tile) => {
+                tile.style.backgroundColor = "white";
+              });
+            }
           }}
           className="border rounded px-26 py-1 bg-red-300"
         >
