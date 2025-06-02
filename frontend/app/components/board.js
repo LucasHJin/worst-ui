@@ -33,6 +33,10 @@ export const Board = () => {
 
   // Changes random tiles colors
   useEffect(() => {
+    const numberDifficulty = numberArr.findIndex(
+      (item) => item === null
+    );
+    const speed = 5000-numberDifficulty*375;
     const interval = setInterval(() => {
       for (let _ = 0; _ < 8; _++) {
         const randomCell = Math.floor(Math.random() * tilesCount);
@@ -44,9 +48,9 @@ export const Board = () => {
           tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
         }
       }
-    }, 3000); // Make longer so it progressively gets more difficult over time (CHANGE TO RAMPING UP OVER TIME!!!)
+    }, speed); 
     return () => clearInterval(interval);
-  }, [tilesCount]);
+  }, [tilesCount, numberArr]);
 
   // Handling opacity (coloring)
   const handleMouseOut = (index, e) => {
