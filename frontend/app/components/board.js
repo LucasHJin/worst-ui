@@ -1,10 +1,13 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { Modal } from "./modal";
 
 export const Board = () => {
   const [tiles, setTiles] = useState(28);
   const [mouseDown, setMouseDown] = useState(false);
   const [numberArr, setNumberArr] = useState(new Array(10).fill(null));
+  const [showModal, setShowModal] = useState(false);
+  const [keepRunning, setKeepRunning] = useState(true);
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -33,46 +36,50 @@ export const Board = () => {
 
   // Changes random tiles colors
   useEffect(() => {
-    const numberDifficulty = numberArr.findIndex(
-      (item) => item === null
-    );
-    const speed = 5000-numberDifficulty*375;
-    const interval = setInterval(() => {
-      for (let _ = 0; _ < 8; _++) {
-        const randomCell = Math.floor(Math.random() * tilesCount);
-        const randomOpacity = Math.random().toFixed(2);
+    if (keepRunning) {
+      const numberDifficulty = numberArr.findIndex((item) => item === null);
+      const speed = 5000 - numberDifficulty * 375;
+      const interval = setInterval(() => {
+        for (let _ = 0; _ < 8; _++) {
+          const randomCell = Math.floor(Math.random() * tilesCount);
+          const randomOpacity = Math.random().toFixed(2);
 
-        const tile = containerRef.current?.children[randomCell];
-        if (tile) {
-          opacityRef.current[randomCell] = parseFloat(randomOpacity);
-          tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
+          const tile = containerRef.current?.children[randomCell];
+          if (tile) {
+            opacityRef.current[randomCell] = parseFloat(randomOpacity);
+            tile.style.backgroundColor = `rgba(0, 0, 0, ${randomOpacity})`;
+          }
         }
-      }
-    }, speed); 
-    return () => clearInterval(interval);
-  }, [tilesCount, numberArr]);
+      }, speed);
+      return () => clearInterval(interval);
+    }
+  }, [tilesCount, numberArr, keepRunning]);
 
   // For submitting the phone number
   useEffect(() => {
     const isFull = numberArr.every((item) => item !== null);
     if (isFull) {
-      // Change to modal?
-      const submit = window.confirm(
-        `Is this your phone number?\n${numberArr}`
-      );
-      if (submit) {
-        alert("Thank you for submitting your phone number!");
-      } else {
-        setNumberArr(new Array(10).fill(null));
-        if (containerRef.current) {
-          Array.from(containerRef.current.children).forEach((tile) => {
-            tile.style.backgroundColor = "white";
-          });
-        }
-        alert("Please try again.");
-      }
+      setKeepRunning(false);
+      setShowModal(true);
     }
   }, [numberArr]);
+
+  const phoneCorrect = () => {
+    setShowModal(false);
+    alert("Thank you for submitting your phone number!");
+  };
+
+  const phoneIncorrect = () => {
+    setShowModal(false);
+    setNumberArr(new Array(10).fill(null));
+    if (containerRef.current) {
+      Array.from(containerRef.current.children).forEach((tile) => {
+        tile.style.backgroundColor = "white";
+      });
+    }
+    setKeepRunning(true);
+    alert("Please try again.");
+  };
 
   // Handling opacity (coloring)
   const handleMouseOut = (index, e) => {
@@ -220,11 +227,15 @@ export const Board = () => {
       />
       <div className="flex flex-nowrap flex-row gap-2">
         {numberArr.map((num, index) => (
-          <div key={index} className="bg-blue-300 h-12 w-12 text-center text-xl font-bold flex flex-col justify-center rounded border">
+          <div
+            key={index}
+            className="bg-blue-300 h-12 w-12 text-center text-xl font-bold flex flex-col justify-center rounded border"
+          >
             {num === null ? "" : num}
           </div>
         ))}
       </div>
+      <Modal isShown={showModal} onYes={phoneCorrect} onNo={phoneIncorrect} numberArr={numberArr}/>
     </div>
   );
 };
