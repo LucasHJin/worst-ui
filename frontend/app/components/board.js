@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal } from "./modal";
 
-export const Board = () => {
+export const Board = ({ navFunction }) => {
   const [tiles, setTiles] = useState(28);
   const [mouseDown, setMouseDown] = useState(false);
   const [numberArr, setNumberArr] = useState(new Array(10).fill(null));
@@ -42,7 +42,7 @@ export const Board = () => {
       const interval = setInterval(() => {
         for (let _ = 0; _ < 8; _++) {
           const randomCell = Math.floor(Math.random() * tilesCount);
-          const randomOpacity = Math.random().toFixed(2);
+          const randomOpacity = (Math.random()*0.75).toFixed(2);
 
           const tile = containerRef.current?.children[randomCell];
           if (tile) {
@@ -67,6 +67,7 @@ export const Board = () => {
   const phoneCorrect = () => {
     setShowModal(false);
     alert("Thank you for submitting your phone number!");
+    navFunction();
   };
 
   const phoneIncorrect = () => {

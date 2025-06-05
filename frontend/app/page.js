@@ -1,8 +1,14 @@
+"use client";
 import { Board } from "./components/board";
-
-// redirect to new page on success?
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter()
+
+  const routeSuccess = () => {
+    router.push('/thanks')
+  }
+
   return (
     <div className="flex flex-col items-center justify-center gap-2">
       <h1 className="text-2xl text-center font-bold mt-1">Choose your phone number</h1>
@@ -20,7 +26,7 @@ export default function Home() {
           If you wish to restart, be aware that all your progress will be erased.
         </li>
       </ul>
-      <Board />
+      <Board navFunction={routeSuccess}/>
     </div>
   );
 }
