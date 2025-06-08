@@ -42,7 +42,7 @@ export const Board = ({ navFunction }) => {
       const interval = setInterval(() => {
         for (let _ = 0; _ < 8; _++) {
           const randomCell = Math.floor(Math.random() * tilesCount);
-          const randomOpacity = (Math.random()*0.75).toFixed(2);
+          const randomOpacity = (Math.random()*0.55).toFixed(2);
 
           const tile = containerRef.current?.children[randomCell];
           if (tile) {
@@ -86,7 +86,7 @@ export const Board = ({ navFunction }) => {
   const handleMouseOut = (index, e) => {
     if (mouseDown) {
       let opacity = opacityRef.current[index] || 0;
-      opacity = Math.min(opacity + 0.35, 1);
+      opacity = Math.min(opacity + 0.4, 1);
       opacityRef.current[index] = opacity;
       e.target.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
     } else {
